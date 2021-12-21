@@ -610,7 +610,7 @@ class GameManager {
 
     getMultiplier() {
         let multi = (1 + Math.floor((this.combo / 5)));
-        return (multi > 5 ? 5 : multi);
+        return (multi >= 5 ? 5 : multi);
     }
 
     updateBubbleParticles() {
@@ -675,13 +675,13 @@ class GameManager {
                 } else {
                     if (gridPosition.x+1 < this.columnLength && !this.bubbles[gridPosition.x + 1][newRow]) {
                         gridPosition.y = newRow;
-                        gridPosition += 1;
+                        gridPosition.x += 1;
                         addTile = true;
                         break;
 
                     } else if (gridPosition.x-1 >= 0 && !this.bubbles[gridPosition.x - 1][newRow]) {
                         gridPosition.y = newRow;
-                        gridPosition -= 1;
+                        gridPosition.x -= 1;
                         addTile = true;
                         break;
 
@@ -901,11 +901,9 @@ class JPaceDefender {
             switch (e.key) {
                 case 'a':
                     this.left = false;
-                    moveAngle();
                     break;
                 case 'd':
                     this.right = false;
-                    moveAngle();
                     break;
 
             }
