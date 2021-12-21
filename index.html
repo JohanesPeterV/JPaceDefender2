@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="styles.css">
+
+</head>
+<div id="popup-page">
+    <div id="scores-popup">
+        <div id="info-container">
+            <div>
+                <h1 id="point-score">0</h1>
+                <p>Point</p>
+            </div>
+            <div>
+                <h1 id="combo-score">0</h1>
+                <p>Maximum Combo</p>
+            </div>
+            <div>
+                <h1 id="time-score">0</h1>
+                <p>Duration Survived</p>
+            </div>
+        </div>
+        <button id="play-again">Play</button>
+
+    </div>
+
+</div>
+<body>
+<div id="score-div">
+    <span>Point               : </span><span id="point-value">100</span>
+    <br>
+    <span>Best Combo          : </span><span id="combo-value">100</span>
+    <br>
+    <span>Duration Survived   : </span><span id="time-value">100</span>
+</div>
+
+
+<div id="combo-div">
+    <span>Combo               : </span><span id="curr-combo-value">100</span>
+    <br>
+    <span>Multiplier          : </span><span id="multiplier-value">100</span>
+    <br>
+    <span>Wild Ammo           : </span><span id="wild-value">100</span>
+</div>
+<canvas id="canvas"></canvas>
+
+<script src="./game.js"></script>
+
+</body>
+</html>

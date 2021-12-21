@@ -1,0 +1,84 @@
+*{
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+canvas{
+    width: 100vw;
+    height: 100vh;
+}
+#score-div{
+    padding: 2vw;
+    font-size: 1vw;
+    position: fixed;
+    color: white;
+    user-select: none;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+}
+
+#combo-div{
+    padding: 2vw;
+    font-size: 1vw;
+    position: fixed;
+    color: white;
+    user-select: none;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    right: 0;
+}
+
+#popup-page{
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+    
+}
+#play-again{
+    background-color: #216095;
+    color: white;
+    font-size: 1.6vw;
+    padding: 0.6vw;
+    width: 8vw;
+    margin-bottom: 2vw;
+}
+#info-container{
+    width: 36vw;
+    height: 12vw;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+#scores-popup{
+    background-color: white;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+}
+#info-container h1{
+    font-size: 3vw;
+
+}
+#info-container p{
+    font-size: 1.4vw;
+
+}
+
+#info-container div{
+    width: 8vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+}
