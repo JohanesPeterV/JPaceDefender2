@@ -247,15 +247,25 @@ class GameManager {
         this.comboScore = document.getElementById('combo-score');
         this.timeScore = document.getElementById('time-score');
         this.hasStarted = false;
+        this.minTime = Math.floor((COL_LEN / 9));
+        this.waitTime = Math.floor((COL_LEN / 3));
+        this.ms=1000;
     }
 
     startGame() {
         let thisManager = this;
+        let flag = 0;
         let timerFunction = function () {
-            if (thisManager.time++ % Math.floor((COL_LEN / 3)) === 0) thisManager.addBubbles();
+            if ((thisManager.time++ % thisManager.waitTime) === 0) {
+                thisManager.addBubbles();
+                if (flag++ === 4) {
+                    flag = 0;
+                    thisManager.waitTime = (thisManager.waitTime < thisManager.minTime ? thisManager.minTime : thisManager.waitTime);
+                }
+            }
             if (thisManager.time % 2) thisManager.currPlayer.wildAmmo++;
         };
-        setInterval(timerFunction, 1000);
+        setInterval(timerFunction, this.ms);
         this.hasStarted = true;
         this.currPlayer.steadyUp();
     }
@@ -600,7 +610,7 @@ class GameManager {
                 this.createPopBubbleParticles(this.fallingBubbles[i].x, this.fallingBubbles[i].y, this.fallingBubbles[i].color);
                 this.fallingBubbles[i].playPop(0.6);
 
-                this.point += 0.2 * this.getMultiplier();
+                this.point += 1 * this.getMultiplier();
                 this.fallingBubbles.splice(i, 1);
                 i--;
             }
@@ -673,13 +683,13 @@ class GameManager {
                     addTile = true;
                     break;
                 } else {
-                    if (gridPosition.x+1 < this.columnLength && !this.bubbles[gridPosition.x + 1][newRow]) {
+                    if (gridPosition.x + 1 < this.columnLength && !this.bubbles[gridPosition.x + 1][newRow]) {
                         gridPosition.y = newRow;
                         gridPosition.x += 1;
                         addTile = true;
                         break;
 
-                    } else if (gridPosition.x-1 >= 0 && !this.bubbles[gridPosition.x - 1][newRow]) {
+                    } else if (gridPosition.x - 1 >= 0 && !this.bubbles[gridPosition.x - 1][newRow]) {
                         gridPosition.y = newRow;
                         gridPosition.x -= 1;
                         addTile = true;
@@ -710,7 +720,7 @@ class GameManager {
             }
 
             if (this.floodFlag > 2) {
-                this.point += this.floodFlag * this.getMultiplier();
+                this.point += this.floodFlag * 2 * this.getMultiplier();
                 this.popFloodFill();
                 this.cleanFloodFill();
                 this.checkRemnants();
@@ -1069,6 +1079,7 @@ startFps(60);
 
 
 let playAgainBtn = document.getElementById('play-again');
+let masterModeBtn = document.getElementById('play-again-challenge');
 popup.style.display = 'flex';
 comboDiv.style.display = 'none';
 scoreDiv.style.display = 'none';
@@ -1082,6 +1093,29 @@ playAgainBtn.addEventListener('click', () => {
         COL_LEN,
         ROW_LEN
     );
+
+    setTimeout(function () {
+        currManager.startGame();
+        if (firstGame) {
+            currManager.playBg();
+        }
+        popup.style.display = 'none';
+        comboDiv.style.display = 'block';
+        scoreDiv.style.display = 'block';
+        startFps(60);
+
+
+    }, 100)
+})
+
+masterModeBtn.addEventListener('click', () => {
+    if (currManager.hasStarted) currManager = new GameManager(
+        BUBBLE_RADIUS * 2,
+        BUBBLE_RADIUS * 2,
+        COL_LEN,
+        ROW_LEN
+    );
+    currManager.ms=100;
 
     setTimeout(function () {
         currManager.startGame();
