@@ -806,7 +806,6 @@ class JPaceDefender {
         this.projectiles = [];
         this.wildAmmo = 3;
 
-
         this.playShoot = (volume) => {
             let shootDoc = document.createElement("audio");
             shootDoc.src = this.shootSound;
@@ -848,9 +847,13 @@ class JPaceDefender {
     }
 
     steadyUp() {
-        window.onmousemove = (e) => {
+        let moveAngle=()=>{
             let angle = Math.atan2(e.clientY - this.y, e.clientX - this.x);
             this.angle = angle;
+        }
+
+        window.onmousemove = (e) => {
+            moveAngle();
         }
 
         window.onclick = (e) => {
@@ -875,9 +878,11 @@ class JPaceDefender {
             switch (e.key) {
                 case 'a':
                     this.left = true;
+                    moveAngle();
                     break;
                 case 'd':
                     this.right = true;
+                    moveAngle();
                     break;
             }
         };
