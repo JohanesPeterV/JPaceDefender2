@@ -673,15 +673,15 @@ class GameManager {
                     addTile = true;
                     break;
                 } else {
-                    if (x<this.columnLength&&!this.bubbles[gridPosition.x+1][newRow]) {
+                    if (x < this.columnLength && !this.bubbles[gridPosition.x + 1][newRow]) {
                         gridPosition.y = newRow;
-                        gridPosition+=1;
+                        gridPosition += 1;
                         addTile = true;
                         break;
 
-                    }else if(x>=0&&!this.bubbles[gridPosition.x-1][newRow]){
+                    } else if (x >= 0 && !this.bubbles[gridPosition.x - 1][newRow]) {
                         gridPosition.y = newRow;
-                        gridPosition-=1;
+                        gridPosition -= 1;
                         addTile = true;
                         break;
 
@@ -846,19 +846,20 @@ class JPaceDefender {
         this.steady = false;
     }
 
-    steadyUp() {
-        let moveAngle=()=>{
-            let angle = Math.atan2(e.clientY - this.y, e.clientX - this.x);
-            this.angle = angle;
-        }
+    moveAngle() {
+        if (!this.e) return;
+        let angle = Math.atan2(this.e.clientY - this.y, this.e.clientX - this.x);
+        this.angle = angle;
+    }
 
+
+    steadyUp() {
         window.onmousemove = (e) => {
-            moveAngle();
+            this.e = e;
+            this.moveAngle();
         }
 
         window.onclick = (e) => {
-            this.left = false;
-            this.right = false;
             const angle = Math.atan2(e.clientY - this.y, e.clientX - this.x);
             const velocity = {
                 x: Math.cos(angle) * 32,
@@ -878,11 +879,9 @@ class JPaceDefender {
             switch (e.key) {
                 case 'a':
                     this.left = true;
-                    moveAngle();
                     break;
                 case 'd':
                     this.right = true;
-                    moveAngle();
                     break;
             }
         };
@@ -902,9 +901,11 @@ class JPaceDefender {
             switch (e.key) {
                 case 'a':
                     this.left = false;
+                    moveAngle();
                     break;
                 case 'd':
                     this.right = false;
+                    moveAngle();
                     break;
 
             }
@@ -1002,8 +1003,14 @@ class JPaceDefender {
 
     updatePosition() {
         // if (this.bubbleProjectile) return;
-        if (this.left && this.x - this.radius > 0) this.x -= this.speed;
-        if (this.right && this.x + this.radius < window_width) this.x += this.speed;
+        if (this.left && this.x - this.radius > 0) {
+            this.x -= this.speed;
+            this.moveAngle();
+        }
+        if (this.right && this.x + this.radius < window_width) {
+            this.x += this.speed;
+            this.moveAngle();
+        }
     }
 
     render(context) {
