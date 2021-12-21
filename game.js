@@ -804,7 +804,7 @@ class JPaceDefender {
         this.shootSound = shootSound;
         this.prepareNextProjectile();
         this.projectiles = [];
-        this.wildAmmo = 3000;
+        this.wildAmmo = 3;
 
 
         this.playShoot = (volume) => {
