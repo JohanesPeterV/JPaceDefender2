@@ -21,6 +21,15 @@ const BUBBLE_RADIUS = (window_width > 900 ? window_width / 80 : window_width / 5
 const ROW_LEN = 8;
 const COL_LEN = (window_width > 900 ? 38 : 24);
 
+
+let popDoc = document.createElement("audio");
+popDoc.src = POP_PATH;
+popDoc.setAttribute("preload", "auto");
+popDoc.setAttribute("controls", "none");
+popDoc.style.display = "none";
+popDoc.volume = 0.6;
+document.body.appendChild(popDoc);
+
 class Bubble {
     static colors = [
         "#355070",
@@ -39,15 +48,9 @@ class Bubble {
 
     }
 
-    playPop = (volume) => {
-        let shootDoc = document.createElement("audio");
-        shootDoc.src = this.popPath;
-        shootDoc.setAttribute("preload", "auto");
-        shootDoc.setAttribute("controls", "none");
-        shootDoc.style.display = "none";
-        shootDoc.volume = volume;
-        document.body.appendChild(shootDoc);
-        shootDoc.play();
+    playPop = () => {
+        popDoc.play();
+
     };
 
     render(context) {
@@ -158,26 +161,14 @@ class BubbleProjectile extends Bubble {
         this.wallPath = wallPath;
         this.inPath = inPath;
         this.visited = false;
+
         this.playCollision = (volume) => {
-            let shootDoc = document.createElement("audio");
-            shootDoc.src = this.wallPath;
-            shootDoc.setAttribute("preload", "auto");
-            shootDoc.setAttribute("controls", "none");
-            shootDoc.style.display = "none";
-            shootDoc.volume = volume;
-            document.body.appendChild(shootDoc);
-            shootDoc.play();
+            collDoc.play();
 
         };
         this.playIn = (volume) => {
-            let shootDoc = document.createElement("audio");
-            shootDoc.src = this.inPath;
-            shootDoc.setAttribute("preload", "auto");
-            shootDoc.setAttribute("controls", "none");
-            shootDoc.style.display = "none";
-            shootDoc.volume = volume;
-            document.body.appendChild(shootDoc);
-            shootDoc.play();
+
+            inDoc.play();
         };
     }
 
@@ -188,12 +179,12 @@ class BubbleProjectile extends Bubble {
         if (this.x + this.radius > window_width) {
             this.x = window_width - this.radius;
             this.dx = this.dx * -1;
-            this.playCollision(1);
+            this.playCollision();
         }
         if (this.x - this.radius <= 0) {
             this.x = this.radius;
             this.dx = this.dx * -1;
-            this.playCollision(1);
+            this.playCollision();
         }
         if (this.y - this.radius <= 0) {
             return true;
@@ -249,7 +240,7 @@ class GameManager {
         this.hasStarted = false;
         this.minTime = Math.floor((COL_LEN / 9));
         this.waitTime = Math.floor((COL_LEN / 3));
-        this.ms=1000;
+        this.ms = 1000;
     }
 
     startGame() {
@@ -296,17 +287,18 @@ class GameManager {
 
     }
 
-    lastRowEmpty() {
+    rowEmpty(curr) {
         let empty = true;
-        for (let i = 0; i < this.columnLength; i++) {
-            empty = empty && !this.bubbles[i][this.rowLength];
+        for (let i = 0; i < this.columnLength && empty; i++) {
+            empty = empty && !this.bubbles[i][curr];
         }
+
         return empty;
     }
 
     addBubbles() {
         this.offSet++;
-        if (this.lastRowEmpty()) this.rowLength++;
+        if (this.rowEmpty(this.rowLength)) this.rowLength++;
         for (let i = 0; i < this.columnLength; i++) {
             let coordinate = this.getBubbleCoordinate(i, this.rowLength);
             this.bubbles[i].unshift(new Bubble(
@@ -478,7 +470,7 @@ class GameManager {
             let currY = this.floodFillPop[i].y;
             let coordinate = this.getBubbleCoordinate(currX, currY);
             this.createPopBubbleParticles(coordinate.x, coordinate.y, currPop.color);
-            currPop.playPop(0.6);
+            currPop.playPop();
             this.bubbles[currX][currY] = null;
         }
     }
@@ -517,7 +509,8 @@ class GameManager {
     }
 
     update() {
-        if (this.rowLength * (this.bubbleHeight - this.bubbleHeight / 9) - this.yStart > window_height) {
+        let empty = this.rowEmpty(this.rowLength - 1);
+        if ((this.rowLength * (this.bubbleHeight - this.bubbleHeight / 9) - this.yStart > window_height) && !empty) {
             this.hasLost = true;
             popup.style.display = 'flex';
             scoreDiv.style.display = 'none';
@@ -526,7 +519,9 @@ class GameManager {
             this.comboScore.textContent = this.maxCombo;
             this.timeScore.textContent = this.time;
             return;
-
+        }
+        if (empty) {
+            this.rowLength--;
         }
 
         let updates = this.currPlayer.update();
@@ -608,7 +603,7 @@ class GameManager {
         for (let i = 0; i < this.fallingBubbles.length; i++) {
             if (this.fallingBubbles[i].update()) {
                 this.createPopBubbleParticles(this.fallingBubbles[i].x, this.fallingBubbles[i].y, this.fallingBubbles[i].color);
-                this.fallingBubbles[i].playPop(0.6);
+                this.fallingBubbles[i].playPop();
 
                 this.point += 1 * this.getMultiplier();
                 this.fallingBubbles.splice(i, 1);
@@ -657,7 +652,7 @@ class GameManager {
     }
 
     snapBubble(i) {
-        this.currPlayer.projectiles[i].playIn(0.2);
+        this.currPlayer.projectiles[i].playIn();
         var centerX = this.currPlayer.projectiles[i].x + this.bubbleWidth / 2;
         var centerY = this.currPlayer.projectiles[i].y + this.bubbleHeight / 2;
         var gridPosition = this.getGridPosition(centerX, centerY);
@@ -801,6 +796,35 @@ class GameManager {
     }
 }
 
+let shootDoc = document.createElement("audio");
+shootDoc.src = SHOOT_PATH;
+shootDoc.setAttribute("preload", "auto");
+shootDoc.setAttribute("controls", "none");
+shootDoc.style.display = "none";
+shootDoc.volume = 0.6;
+document.body.appendChild(shootDoc);
+let reloadDoc = document.createElement("audio");
+reloadDoc.src = RELOAD_PATH
+reloadDoc.setAttribute("preload", "auto");
+reloadDoc.setAttribute("controls", "none");
+reloadDoc.style.display = "none";
+reloadDoc.volume = 0.6;
+document.body.appendChild(reloadDoc);
+
+let collDoc = document.createElement("audio");
+collDoc.src = WALL_PATH;
+collDoc.setAttribute("preload", "auto");
+collDoc.setAttribute("controls", "none");
+collDoc.style.display = "none";
+collDoc.volume = 1;
+document.body.appendChild(collDoc);
+inDoc = document.createElement("audio");
+inDoc.src = IN_PATH;
+inDoc.setAttribute("preload", "auto");
+inDoc.setAttribute("controls", "none");
+inDoc.style.display = "none";
+inDoc.volume = 0.4;
+document.body.appendChild(inDoc);
 class JPaceDefender {
 
     constructor(x, y, radius, color, speed, shootSound) {
@@ -816,25 +840,14 @@ class JPaceDefender {
         this.projectiles = [];
         this.wildAmmo = 3;
 
-        this.playShoot = (volume) => {
-            let shootDoc = document.createElement("audio");
-            shootDoc.src = this.shootSound;
-            shootDoc.setAttribute("preload", "auto");
-            shootDoc.setAttribute("controls", "none");
-            shootDoc.style.display = "none";
-            shootDoc.volume = volume;
-            document.body.appendChild(shootDoc);
+
+        this.playShoot = () => {
             shootDoc.play();
         };
-        this.playReload = (volume) => {
-            let shootDoc = document.createElement("audio");
-            shootDoc.src = RELOAD_PATH
-            shootDoc.setAttribute("preload", "auto");
-            shootDoc.setAttribute("controls", "none");
-            shootDoc.style.display = "none";
-            shootDoc.volume = volume;
-            document.body.appendChild(shootDoc);
-            shootDoc.play();
+
+        this.playReload = () => {
+
+            reloadDoc.play();
         };
         this.angle = Math.atan2(20, 30);
         let getMousePos = (e) => {
@@ -875,7 +888,7 @@ class JPaceDefender {
                 x: Math.cos(angle) * 32,
                 y: Math.sin(angle) * 32,
             };
-            this.playShoot(0.6);
+            this.playShoot();
             let bubbleProjectile = this.nextProjectile;
             bubbleProjectile.dy = velocity.y;
             bubbleProjectile.dx = velocity.x;
@@ -899,11 +912,11 @@ class JPaceDefender {
             switch (e.key) {
                 case 'r':
                     this.prepareNextProjectile();
-                    this.playReload(0.6);
+                    this.playReload();
                     break;
                 case 'f':
                     this.prepareWildProjectile();
-                    this.playReload(0.6);
+                    this.playReload();
                     break;
             }
         }
@@ -1115,7 +1128,7 @@ masterModeBtn.addEventListener('click', () => {
         COL_LEN,
         ROW_LEN
     );
-    currManager.ms=100;
+    currManager.ms = 100;
 
     setTimeout(function () {
         currManager.startGame();
