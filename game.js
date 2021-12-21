@@ -673,13 +673,13 @@ class GameManager {
                     addTile = true;
                     break;
                 } else {
-                    if (x < this.columnLength && !this.bubbles[gridPosition.x + 1][newRow]) {
+                    if (gridPosition.x+1 < this.columnLength && !this.bubbles[gridPosition.x + 1][newRow]) {
                         gridPosition.y = newRow;
                         gridPosition += 1;
                         addTile = true;
                         break;
 
-                    } else if (x >= 0 && !this.bubbles[gridPosition.x - 1][newRow]) {
+                    } else if (gridPosition.x-1 >= 0 && !this.bubbles[gridPosition.x - 1][newRow]) {
                         gridPosition.y = newRow;
                         gridPosition -= 1;
                         addTile = true;
