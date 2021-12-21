@@ -157,6 +157,7 @@ class BubbleProjectile extends Bubble {
     constructor(x, y, radius, popPath, wallPath, inPath, wild) {
         super(x, y, radius, popPath);
         if (wild) this.color = WILD_COLOR;
+        this.wild=wild;
         this.wallPath = wallPath;
         this.inPath = inPath;
         this.visited = false;
@@ -995,6 +996,7 @@ class JPaceDefender {
 
     prepareWildProjectile() {
         if (this.wildAmmo <= 0) return;
+        if(this.nextProjectile.wild)return;
         this.wildAmmo--;
         this.nextProjectile = new BubbleProjectile(
             this.x,
