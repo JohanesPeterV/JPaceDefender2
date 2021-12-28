@@ -157,7 +157,7 @@ class BubbleProjectile extends Bubble {
     constructor(x, y, radius, popPath, wallPath, inPath, wild) {
         super(x, y, radius, popPath);
         if (wild) this.color = WILD_COLOR;
-        this.wild = wild;
+        this.wild=wild;
         this.wallPath = wallPath;
         this.inPath = inPath;
         this.visited = false;
@@ -216,7 +216,7 @@ let comboDiv = document.getElementById('combo-div');
 class GameManager {
     static flag = false;
 
-    constructor(bubbleWidth, bubbleHeight, columnLength, rowLength, prepareNextProjectile) {
+    constructor(bubbleWidth, bubbleHeight, columnLength, rowLength) {
         this.bubbleWidth = bubbleWidth;
         this.bubbleHeight = bubbleHeight;
         this.columnLength = columnLength;
@@ -231,8 +231,7 @@ class GameManager {
             window_width / 30,
             "#C8E6C9",
             11,
-            SHOOT_PATH,
-            prepareNextProjectile
+            SHOOT_PATH
         );
         this.offSet = 0;
         this.point = 0;
@@ -290,17 +289,18 @@ class GameManager {
     playBg() {
         if (GameManager.flag) return;
         GameManager.flag = true;
-        this.bgMusic = document.createElement("audio");
-        this.bgMusic.src = BG_PATH;
-        this.bgMusic.setAttribute("preload", "auto");
-        this.bgMusic.setAttribute("controls", "none");
-        this.bgMusic.style.display = "none";
-        this.bgMusic.id = "bg-music";
-        document.body.appendChild(this.bgMusic);
+        let bgMusic = document.createElement("audio");
+        bgMusic.src = BG_PATH;
+        bgMusic.setAttribute("preload", "auto");
+        bgMusic.setAttribute("controls", "none");
+        bgMusic.style.display = "none";
+        bgMusic.id = "bg-music";
+        document.body.appendChild(bgMusic);
         document.getElementById("bg-music").volume = 0.3;
         document.getElementById("bg-music").loop = true;
-        this.bgMusic.play();
-        onEndedDoc(this.bgMusic);
+
+        bgMusic.play();
+
     }
 
     rowEmpty(curr) {
@@ -812,18 +812,16 @@ class GameManager {
         this.bubbles[x][y] = null;
     }
 }
-
-let onEndedDoc = (doc) => {
-    doc.onended = () => {
-        doc.srcObject = null;
+let onEndedDoc=(doc)=>{
+    doc.onended=()=>{
+        doc.srcObject=null;
         doc.remove();
     }
 
 }
-
 class JPaceDefender {
 
-    constructor(x, y, radius, color, speed, shootSound, prepareNextProjectile) {
+    constructor(x, y, radius, color, speed, shootSound) {
         this.x = x;
         this.y = y;
         this.radius = radius;
@@ -832,10 +830,10 @@ class JPaceDefender {
         this.hasLost = false;
         this.trajectoryCircles = [];
         this.shootSound = shootSound;
-        this.prepareNextProjectile = prepareNextProjectile;
+        this.prepareNextProjectile();
         this.projectiles = [];
         this.wildAmmo = 3;
-        this.handleNext();
+
         this.playShoot = (volume) => {
             let shootDoc = document.createElement("audio");
             shootDoc.src = this.shootSound;
@@ -879,11 +877,6 @@ class JPaceDefender {
         this.steady = false;
     }
 
-    handleNext() {
-        this.nextProjectile = this.prepareNextProjectile(this);
-        this.color = this.nextProjectile.color;
-    }
-
     moveAngle() {
         if (!this.e) return;
         let angle = Math.atan2(this.e.clientY - this.y, this.e.clientX - this.x);
@@ -910,8 +903,7 @@ class JPaceDefender {
             bubbleProjectile.x = this.x;
             bubbleProjectile.y = this.y;
             this.projectiles.push(bubbleProjectile);
-            this.handleNext();
-
+            this.prepareNextProjectile();
         };
 
         window.onkeydown = (e) => {
@@ -927,7 +919,7 @@ class JPaceDefender {
         window.onkeypress = (e) => {
             switch (e.key) {
                 case 'r':
-                    this.handleNext();
+                    this.prepareNextProjectile();
                     this.playReload(0.6);
                     break;
                 case 'f':
@@ -988,10 +980,23 @@ class JPaceDefender {
 
     }
 
+    prepareNextProjectile() {
+        this.nextProjectile = new BubbleProjectile(
+            this.x,
+            this.y,
+            BUBBLE_RADIUS,
+            POP_PATH,
+            WALL_PATH,
+            IN_PATH,
+            false
+        );
+        this.color = this.nextProjectile.color;
+
+    }
 
     prepareWildProjectile() {
         if (this.wildAmmo <= 0) return;
-        if (this.nextProjectile.wild) return;
+        if(this.nextProjectile.wild)return;
         this.wildAmmo--;
         this.nextProjectile = new BubbleProjectile(
             this.x,
@@ -1072,19 +1077,7 @@ let currManager = new GameManager(
     BUBBLE_RADIUS * 2,
     BUBBLE_RADIUS * 2,
     COL_LEN,
-    ROW_LEN,
-    () => {
-        return new BubbleProjectile(
-            this.x,
-            this.y,
-            BUBBLE_RADIUS,
-            POP_PATH,
-            WALL_PATH,
-            IN_PATH,
-            false
-        );
-
-    }
+    ROW_LEN
 );
 const animate = () => {
     if (currManager.hasLost) return;
@@ -1095,8 +1088,10 @@ const animate = () => {
         then = now - (elapsed % fpsInterval);
         window_width = window.innerWidth;
         window_height = window.innerHeight;
+
         ctx.fillStyle = "rgba(0,0, 0,0.25)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+
         currManager.render(ctx);
         currManager.update();
     }
@@ -1118,17 +1113,7 @@ playAgainBtn.addEventListener('click', () => {
         BUBBLE_RADIUS * 2,
         BUBBLE_RADIUS * 2,
         COL_LEN,
-        ROW_LEN, () => {
-            return new BubbleProjectile(
-                this.x,
-                this.y,
-                BUBBLE_RADIUS,
-                POP_PATH,
-                WALL_PATH,
-                IN_PATH,
-                false
-            );
-        }
+        ROW_LEN
     );
 
     setTimeout(function () {
@@ -1146,27 +1131,13 @@ playAgainBtn.addEventListener('click', () => {
 })
 
 masterModeBtn.addEventListener('click', () => {
-    currManager = new GameManager(
+    if (currManager.hasStarted) currManager = new GameManager(
         BUBBLE_RADIUS * 2,
         BUBBLE_RADIUS * 2,
         COL_LEN,
-        ROW_LEN,
-        (parent) => {
-            if(parent.wildAmmo<=0)return;
-            parent.wildAmmo--;
-            console.log(parent.wildAmmo)
-            return new BubbleProjectile(
-                this.x,
-                this.y,
-                BUBBLE_RADIUS,
-                POP_PATH,
-                WALL_PATH,
-                IN_PATH,
-                true
-            );
-        }
+        ROW_LEN
     );
-    currManager.ms = 80;
+    currManager.ms = 200;
 
     setTimeout(function () {
         currManager.startGame();
@@ -1179,5 +1150,5 @@ masterModeBtn.addEventListener('click', () => {
         startFps(60);
 
 
-    }, 100);
+    }, 100)
 })
